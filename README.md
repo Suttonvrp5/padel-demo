@@ -4,7 +4,8 @@ A flagship portfolio piece: a fictional Mediterranean padel club told as a
 cinematic 3D scroll story. Built with Vite, React, React Three Fiber, drei,
 @react-three/postprocessing, GSAP ScrollTrigger and Lenis.
 
-![Club at night](docs/progress/pass6-intro.png)
+![Club at night](docs/progress/final-intro.png)
+![The glass impact](docs/progress/final-impact.png)
 
 ---
 

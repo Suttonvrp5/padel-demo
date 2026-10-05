@@ -8,6 +8,7 @@ import Floodlights from './Floodlights'
 import Lighting from './Lighting'
 import CameraRig from './CameraRig'
 import Rally from './Rally'
+import Players from './Players'
 
 export default function Experience({ quality = 'high' }) {
   return (
@@ -17,7 +18,8 @@ export default function Experience({ quality = 'high' }) {
       shadows={{ type: THREE.PCFShadowMap }}
       gl={{ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: true }}
       camera={{ fov: 35, near: 0.1, far: 1500, position: [30, 22, 34] }}
-      onCreated={({ gl, scene }) => {
+      onCreated={({ gl, scene, camera }) => {
+        if (import.meta.env.DEV) Object.assign(window, { __scene: scene, __camera: camera })
         gl.toneMapping = THREE.ACESFilmicToneMapping
         gl.toneMappingExposure = 1.0
         scene.fog = new THREE.FogExp2('#18213f', 0.0105)
@@ -30,6 +32,7 @@ export default function Experience({ quality = 'high' }) {
         <Floodlights beams={quality !== 'low'} />
         <Surroundings quality={quality} />
         <Rally />
+        <Players quality={quality} />
         <CameraRig />
       </Suspense>
     </Canvas>

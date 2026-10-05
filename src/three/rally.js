@@ -13,13 +13,13 @@ export const BALL_R = 0.0335
 const G = 9.81
 
 export const EVENTS = [
-  { t: 0.0, p: [-1.0, 1.0, -8.6], type: 'hitA' },
-  { t: 0.85, p: [0.2, BALL_R, 7.0], type: 'bounce' },
-  { t: 1.07, p: [0.42, 1.15, 10 - 0.006 - BALL_R], type: 'glass', normal: [0, 0, -1] },
-  { t: 1.62, p: [1.6, 0.95, 7.9], type: 'hitB' },
-  { t: 2.57, p: [-2.6, BALL_R, -6.2], type: 'bounce' },
-  { t: 2.87, p: [-3.3, 0.9, -10 + 0.006 + BALL_R], type: 'glass', normal: [0, 0, 1] },
-  { t: 3.37, p: [-3.0, BALL_R, -8.9], type: 'bounce' },
+  { t: 0.0, p: [1.0, 1.0, -8.6], type: 'hitA' },
+  { t: 0.85, p: [-0.2, BALL_R, 7.0], type: 'bounce' },
+  { t: 1.07, p: [-0.45, 1.15, 10 - 0.006 - BALL_R], type: 'glass', normal: [0, 0, -1] },
+  { t: 1.62, p: [-1.4, 0.95, 7.9], type: 'hitB' },
+  { t: 2.57, p: [2.4, BALL_R, -6.2], type: 'bounce' },
+  { t: 2.87, p: [3.1, 0.9, -10 + 0.006 + BALL_R], type: 'glass', normal: [0, 0, 1] },
+  { t: 3.37, p: [2.8, BALL_R, -8.9], type: 'bounce' },
 ]
 export const IMPACT = EVENTS[2]
 export const POINT_WON_T = 2.95

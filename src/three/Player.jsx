@@ -82,8 +82,8 @@ export const CAST = {
   },
   // Partners, holding the net.
   // In the coaching chapter C becomes the student, D the coach.
-  C: { facing: 0, path: [[-1, -2.3, -3.6], [1.0, -2.0, -3.4], [2.6, -0.8, -3.2]], swings: [], idle: true, coaching: { at: [-1.6, -6.4], facing: 0.35, loop: 2.6 } },
-  D: { facing: Math.PI, path: [[-1, 2.4, 3.4], [1.0, 2.2, 3.2], [2.0, 1.4, 2.6]], swings: [], idle: true, coaching: { at: [0.7, -1.6], facing: Math.PI - 0.3 } },
+  C: { facing: 0, path: [[-1, -2.3, -3.6], [1.0, -2.0, -3.4], [2.6, -0.8, -3.2]], swings: [], idle: true, coaching: { at: [-1.3, 2.6], facing: Math.PI / 2 + 0.5, loop: 2.6 } },
+  D: { facing: Math.PI, path: [[-1, 2.4, 3.4], [1.0, 2.2, 3.2], [2.0, 1.4, 2.6]], swings: [], idle: true, coaching: { at: [0.5, 4.4], facing: -2.3 } },
 }
 
 const SKIN = '#8d6e5c'
@@ -190,7 +190,7 @@ export default function Player({ id, kit = '#f3f1ec', courtX = 0 }) {
     if (!j.root) return
     const t = story.rallyT
     const coaching = story.s > 3.04
-    const visible = story.s > 1.55 && story.s < 4.2 && (!coaching || cast.coaching)
+    const visible = story.s > 1.55 && story.s < 4.2 && (!coaching || !!cast.coaching)
     j.root.visible = visible
     if (!visible) return
     if (coaching) return applyCoaching(j, cast.coaching, state.clock.elapsedTime, courtX, tmp.pose)

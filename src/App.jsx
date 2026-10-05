@@ -1,10 +1,18 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Experience from './three/Experience'
 import Sections from './ui/Sections'
+import Nav from './ui/Nav'
+import Scoreboard from './ui/Scoreboard'
+import Cursor from './ui/Cursor'
+import BookingDrawer from './ui/BookingDrawer'
 import { initScroll, jumpToStory } from './lib/scroll'
 import { story } from './lib/story'
 
 export default function App() {
+  const [booking, setBooking] = useState({ open: false, context: '' })
+  const openBooking = useCallback((context = '') => setBooking({ open: true, context }), [])
+  const closeBooking = useCallback(() => setBooking((b) => ({ ...b, open: false })), [])
+
   useEffect(() => {
     story.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     initScroll({ reducedMotion: story.reducedMotion })
@@ -23,7 +31,12 @@ export default function App() {
   return (
     <>
       <Experience />
-      <Sections />
+      <div className="grade" aria-hidden="true" />
+      <Nav onBook={openBooking} />
+      <Sections onBook={openBooking} />
+      <Scoreboard />
+      <BookingDrawer open={booking.open} context={booking.context} onClose={closeBooking} />
+      <Cursor />
     </>
   )
 }

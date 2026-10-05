@@ -28,13 +28,15 @@ export default function Effects({ quality = 'high' }) {
 
   const high = quality === 'high'
   return (
-    <EffectComposer multisampling={high ? 4 : 0} enableNormalPass={false}>
-      <Bloom mipmapBlur luminanceThreshold={1.0} luminanceSmoothing={0.2} intensity={high ? 0.95 : 0.7} radius={0.72} />
+    <EffectComposer multisampling={high ? 4 : quality === 'medium' ? 2 : 0} enableNormalPass={false}>
+      <Bloom mipmapBlur luminanceThreshold={1.0} luminanceSmoothing={0.2} intensity={high ? 0.95 : 0.75} radius={0.72} levels={high ? 8 : 5} />
       {high ? <DepthOfField ref={dof} target={[0, 1, 0]} focalLength={0.06} bokehScale={2.2} worldFocusRange={9} /> : <></>}
-      {quality !== 'low' ? <ChromaticAberration ref={ca} offset={caOffset} radialModulation modulationOffset={0.35} /> : <></>}
-      <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.42} />
-      <Vignette offset={0.28} darkness={0.62} />
+      {high ? <ChromaticAberration ref={ca} offset={caOffset} radialModulation modulationOffset={0.35} /> : <></>}
+      {/* Tone map first, so grain and vignette work on display-range colours
+          (grain on raw HDR highlights turns into rainbow speckle). */}
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+      <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.26} />
+      <Vignette offset={0.28} darkness={0.62} />
     </EffectComposer>
   )
 }

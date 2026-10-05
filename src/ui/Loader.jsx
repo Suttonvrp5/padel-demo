@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { useProgress } from '@react-three/drei'
 import { gsap } from 'gsap'
 import { lockScroll } from '../lib/scroll'
 import { story } from '../lib/story'
@@ -7,8 +6,14 @@ import { story } from '../lib/story'
 // Loading screen with real progress: the number tracks actual downloads
 // (HDRI, models) reported by three.js, plus web fonts. The counter eases
 // toward the real value so it never jumps, and never claims 100% early.
-export default function Loader({ onDone }) {
-  const { progress, active } = useProgress()
+export default function Loader({ onDone, waitForFrames = true }) {
+  // Progress comes from three.js's loading manager (hooked up inside the
+  // lazily loaded 3D chunk), so this screen doesn't need the 3D engine.
+  const [{ progress, active }, setLoad] = useState({ progress: 0, active: true })
+  useEffect(() => {
+    const id = setInterval(() => setLoad({ progress: story.loadProgress, active: story.loadActive }), 100)
+    return () => clearInterval(id)
+  }, [])
   const [fontsReady, setFontsReady] = useState(false)
   const [shown, setShown] = useState(0)
   const [gone, setGone] = useState(false)
@@ -22,7 +27,7 @@ export default function Loader({ onDone }) {
   }, [])
 
   // Fonts count for 10%, 3D assets for 90%.
-  target.current = (fontsReady ? 10 : 0) + progress * 0.9
+  target.current = (fontsReady ? 10 : 0) + (waitForFrames ? progress : 100) * 0.9
 
   useEffect(() => {
     let raf
@@ -31,7 +36,7 @@ export default function Loader({ onDone }) {
       val += (target.current - val) * 0.08
       if (target.current - val < 0.3) val = target.current
       setShown(Math.floor(val))
-      const done = val >= 99.9 && !active && fontsReady && story.frames > 2
+      const done = val >= 99.9 && fontsReady && (!waitForFrames || (!active && story.frames > 2))
       if (done && !finished.current) {
         finished.current = true
         exit()
@@ -55,7 +60,7 @@ export default function Loader({ onDone }) {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [active, fontsReady, onDone])
+  }, [active, fontsReady, onDone, waitForFrames])
 
   if (gone) return null
   return (

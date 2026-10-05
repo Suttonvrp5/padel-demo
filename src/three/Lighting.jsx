@@ -20,7 +20,7 @@ export default function Lighting({ quality = 'high' }) {
     const l = new THREE.DirectionalLight(LED_COLOR, 0.55)
     l.position.set(heroX + 7, 16, 5)
     l.target.position.set(heroX, 0, 0)
-    l.castShadow = true
+    l.castShadow = quality !== 'low'
     const s = quality === 'high' ? 2048 : 1024
     l.shadow.mapSize.set(s, s)
     const cam = l.shadow.camera
@@ -46,7 +46,7 @@ export default function Lighting({ quality = 'high' }) {
   return (
     <>
       <Environment
-        files="/hdri/moonless_golf_1k.hdr"
+        files="/hdri/moonless_golf_512.hdr"
         background={false}
         environmentIntensity={1.0}
         resolution={256}

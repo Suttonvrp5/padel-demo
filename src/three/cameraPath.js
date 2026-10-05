@@ -4,7 +4,15 @@ import * as THREE from 'three'
 // `s` is the story float from story.js (chapter index + progress).
 // pos = where the camera is, look = what it points at, fov = zoom
 // (smaller = more telephoto).
-const K = (s, pos, look, fov = 35) => ({ s, pos: new THREE.Vector3(...pos), look: new THREE.Vector3(...look), fov })
+const K = (s, pos, look, fov = 35, portraitLook = look) => ({
+  s,
+  pos: new THREE.Vector3(...pos),
+  look: new THREE.Vector3(...look),
+  // Tall phone screens see a narrow slice of the scene, so some shots aim
+  // at a different point there to keep the subject in frame.
+  plook: new THREE.Vector3(...portraitLook),
+  fov,
+})
 
 // Membership: a sweeping orbit around the whole club.
 const orbit = (s, angle, radius, height, fov = 34) =>
@@ -21,14 +29,14 @@ export const KEYS = [
   // 2 · The rally. Camera parks behind the back glass at player height.
   K(2.0, [0.35, 1.3, 11.1], [0, 1.05, 0], 38),
   K(2.14, [0.3, 1.22, 11.45], [0, 1.0, 0], 34),
-  K(2.4, [-0.15, 1.2, 11.38], [-0.55, 1.12, 4], 30),
-  K(2.52, [-0.25, 1.18, 11.32], [-0.6, 1.15, 6], 28), // impact, in slow motion
-  K(2.64, [-0.15, 1.28, 11.32], [-0.6, 1.05, 1], 32),
+  K(2.4, [-0.15, 1.2, 11.38], [-0.55, 1.12, 4], 30, [-0.95, 1.12, 4]),
+  K(2.52, [-0.25, 1.18, 11.32], [-0.6, 1.15, 6], 28, [-1.0, 1.15, 6]), // impact, in slow motion
+  K(2.64, [-0.15, 1.28, 11.32], [-0.6, 1.05, 1], 32, [-1.2, 1.05, 1]),
   K(2.82, [0.1, 1.7, 11.0], [0.6, 0.8, -3], 36),
   K(2.97, [-0.1, 2.6, 11.8], [1.2, 0.4, -5], 38),
   // 3 · Coaching: low and courtside, skimming the turf.
-  K(3.2, [4.2, 0.6, 7.2], [-0.6, 1.0, 1.0], 34),
-  K(3.82, [4.0, 0.55, 5.4], [-0.6, 1.05, 0.6], 32),
+  K(3.2, [4.2, 0.6, 7.2], [-0.6, 1.0, 1.0], 34, [-1.6, 1.0, 2.2]),
+  K(3.82, [4.0, 0.55, 5.4], [-0.6, 1.05, 0.6], 32, [-1.6, 1.05, 2.0]),
   // Lift over the 3 m side fence before sweeping out.
   K(4.02, [4.3, 3.9, 3.5], [-1, 0.8, -4], 36),
   // 4 · Membership: sweep around the club.
@@ -53,7 +61,7 @@ const cr = (p0, p1, p2, p3, t, out) => {
     .addScaledVector(p3, 0.5 * t3 - 0.5 * t2)
 }
 
-export function sampleCamera(s, outPos, outLook) {
+export function sampleCamera(s, outPos, outLook, portrait = false) {
   const n = KEYS.length
   let i = 0
   while (i < n - 2 && s >= KEYS[i + 1].s) i++
@@ -63,7 +71,8 @@ export function sampleCamera(s, outPos, outLook) {
   const k0 = KEYS[Math.max(0, i - 1)]
   const k3 = KEYS[Math.min(n - 1, i + 2)]
   cr(k0.pos, a.pos, b.pos, k3.pos, t, outPos)
-  cr(k0.look, a.look, b.look, k3.look, t, outLook)
+  if (portrait) cr(k0.plook, a.plook, b.plook, k3.plook, t, outLook)
+  else cr(k0.look, a.look, b.look, k3.look, t, outLook)
   // Ease the zoom so it never pops.
   const e = t * t * (3 - 2 * t)
   return THREE.MathUtils.lerp(a.fov, b.fov, e)

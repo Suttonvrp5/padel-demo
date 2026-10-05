@@ -7,9 +7,12 @@ export default function Reveal({ text, as: Tag = 'h2', className = '' }) {
     <Tag className={`reveal ${className}`} aria-label={text.replace(/\n/g, ' ')}>
       {lines.map((line, li) => (
         <span className="line" key={li} aria-hidden="true">
-          {line.split(' ').map((w, wi) => (
-            <span className="word" key={wi}>
-              <span>{w}</span>
+          {line.split(' ').map((w, wi, all) => (
+            <span key={wi}>
+              <span className="word">
+                <span>{w}</span>
+              </span>
+              {wi < all.length - 1 ? ' ' : null}
             </span>
           ))}
         </span>

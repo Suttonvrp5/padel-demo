@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { story } from '../lib/story'
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import Racket from './Racket'
 
 // A stylised athletic figure (think premium sportswear ad mannequin),
@@ -87,58 +88,75 @@ export const CAST = {
 }
 
 const SKIN = '#8d6e5c'
-function useMaterials(kit) {
-  return useMemo(
-    () => ({
-      skin: new THREE.MeshStandardMaterial({ color: SKIN, roughness: 0.55, metalness: 0.0 }),
-      shirt: new THREE.MeshStandardMaterial({ color: kit, roughness: 0.8 }),
-      shorts: new THREE.MeshStandardMaterial({ color: '#10131c', roughness: 0.85 }),
-      hair: new THREE.MeshStandardMaterial({ color: '#17110d', roughness: 0.9 }),
-      shoe: new THREE.MeshStandardMaterial({ color: '#f2f2ee', roughness: 0.6 }),
-    }),
-    [kit],
-  )
-}
+// Body parts are built from simple shapes. Pieces that move together
+// (e.g. a thigh and its shorts leg) are merged into one mesh with colours
+// baked into the vertices, so each player costs ~15 draw calls instead of ~25.
+const COLORS = { skin: SKIN, shorts: '#10131c', hair: '#17110d', shoe: '#f2f2ee' }
 
 const cap = (r, len) => {
   const g = new THREE.CapsuleGeometry(r, len, 4, 10)
   g.translate(0, -len / 2 - r * 0.3, 0)
   return g
 }
-const GEO = {
-  torso: (() => {
+const SHAPES = {
+  torso: () => {
     const g = new THREE.CapsuleGeometry(0.15, 0.28, 6, 14)
     g.scale(1.15, 1, 0.68)
     g.translate(0, 0.2, 0)
     return g
-  })(),
-  pelvis: (() => {
+  },
+  pelvis: () => {
     const g = new THREE.CapsuleGeometry(0.135, 0.06, 4, 12)
     g.scale(1.15, 1, 0.75)
     return g
-  })(),
-  head: new THREE.SphereGeometry(0.094, 20, 16),
-  hair: (() => {
+  },
+  head: () => new THREE.SphereGeometry(0.094, 20, 16),
+  hair: () => {
     const g = new THREE.SphereGeometry(0.099, 20, 10, 0, Math.PI * 2, 0, Math.PI * 0.55)
     g.rotateX(-0.25)
+    g.translate(0, 0.012, -0.008)
     return g
-  })(),
-  sleeve: cap(0.058, 0.07),
-  shortsLeg: cap(0.088, 0.14),
-  neck: cap(0.045, 0.06),
-  upperArm: cap(0.047, 0.24),
-  foreArm: cap(0.04, 0.22),
-  hand: new THREE.SphereGeometry(0.045, 10, 8),
-  thigh: cap(0.075, 0.36),
-  shin: cap(0.055, 0.36),
-  foot: (() => {
+  },
+  foot: () => {
     const g = new THREE.CapsuleGeometry(0.045, 0.17, 4, 10)
     g.rotateX(Math.PI / 2)
     g.scale(1.1, 0.85, 1)
     g.translate(0, -0.04, 0.05)
     return g
-  })(),
+  },
 }
+
+function paint(geo, color, dy = 0) {
+  const g = (geo.index ? geo.toNonIndexed() : geo).translate(0, dy, 0)
+  const c = new THREE.Color(color)
+  const n = g.attributes.position.count
+  const arr = new Float32Array(n * 3)
+  for (let i = 0; i < n; i++) arr.set([c.r, c.g, c.b], i * 3)
+  g.setAttribute('color', new THREE.BufferAttribute(arr, 3))
+  g.deleteAttribute('uv')
+  return g
+}
+const join = (...parts) => mergeGeometries(parts)
+
+const partsCache = new Map()
+function bodyParts(kit) {
+  if (!partsCache.has(kit)) {
+    const { skin, shorts, hair, shoe } = COLORS
+    partsCache.set(kit, {
+      pelvis: paint(SHAPES.pelvis(), shorts),
+      thigh: join(paint(cap(0.075, 0.36), skin), paint(cap(0.088, 0.14), shorts, 0.02)),
+      shin: paint(cap(0.055, 0.36), skin),
+      foot: paint(SHAPES.foot(), shoe),
+      torso: join(paint(SHAPES.torso(), kit), paint(cap(0.045, 0.06), skin, 0.59)),
+      head: join(paint(SHAPES.head(), skin), paint(SHAPES.hair(), hair)),
+      upperArm: join(paint(cap(0.047, 0.24), skin), paint(cap(0.058, 0.07), kit, 0.02)),
+      foreArm: join(paint(cap(0.04, 0.22), skin), paint(new THREE.SphereGeometry(0.045, 10, 8), skin, -0.27)),
+    })
+  }
+  return partsCache.get(kit)
+}
+
+const bodyMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.7, metalness: 0 })
 
 // Write a pose onto the joint groups.
 function applyPose(j, p, breathe = 0) {
@@ -176,10 +194,10 @@ function applyCoaching(j, cfg, time, courtX, pose) {
   applyPose(j, pose, Math.sin(time * 2) * 0.02)
 }
 
-const M = ({ geo, mat, ...rest }) => <mesh geometry={GEO[geo]} material={mat} castShadow {...rest} />
+const M = ({ geo, ...rest }) => <mesh geometry={geo} material={bodyMaterial} castShadow {...rest} />
 
 export default function Player({ id, kit = '#f3f1ec', courtX = 0 }) {
-  const m = useMaterials(kit)
+  const m = bodyParts(kit)
   const cast = CAST[id]
   const r = useRef({})
   const ref = (k) => (o) => (r.current[k] = o)
@@ -227,52 +245,43 @@ export default function Player({ id, kit = '#f3f1ec', courtX = 0 }) {
   return (
     <group ref={ref('root')}>
       <group ref={ref('hips')} position-y={0.96}>
-        <M geo="pelvis" mat={m.shorts} />
+        <M geo={m.pelvis} />
         {/* Legs */}
         {[
           ['r', -0.095, 'rHip', 'rKnee', 'rFoot'],
           ['l', 0.095, 'lHip', 'lKnee', 'lFoot'],
         ].map(([k, x, hip, knee, foot]) => (
           <group key={k} ref={ref(hip)} position={[x, -0.04, 0]}>
-            <M geo="thigh" mat={m.skin} />
-            <M geo="shortsLeg" mat={m.shorts} position-y={0.02} />
+            <M geo={m.thigh} />
             <group ref={ref(knee)} position-y={-0.43}>
-              <M geo="shin" mat={m.skin} />
+              <M geo={m.shin} />
               <group ref={ref(foot)} position-y={-0.43}>
-                <M geo="foot" mat={m.shoe} />
+                <M geo={m.foot} castShadow={false} />
               </group>
             </group>
           </group>
         ))}
-        {/* Torso and head */}
+        {/* Torso, neck and head */}
         <group ref={ref('spine')} position-y={0.06}>
-          <M geo="torso" mat={m.shirt} />
-          <group position-y={0.53}>
-            <M geo="neck" mat={m.skin} position-y={0.06} />
-            <group ref={ref('head')} position-y={0.1}>
-              <M geo="head" mat={m.skin} />
-              <M geo="hair" mat={m.hair} position={[0, 0.012, -0.008]} />
-            </group>
+          <M geo={m.torso} />
+          <group ref={ref('head')} position-y={0.63}>
+            <M geo={m.head} />
           </group>
           {/* Right (racket) arm */}
           <group ref={ref('rSh')} position={[-0.2, 0.43, 0]}>
-            <M geo="upperArm" mat={m.skin} />
-            <M geo="sleeve" mat={m.shirt} position-y={0.02} />
+            <M geo={m.upperArm} />
             <group ref={ref('rEl')} position-y={-0.3}>
-              <M geo="foreArm" mat={m.skin} />
+              <M geo={m.foreArm} />
               <group ref={ref('rWr')} position-y={-0.27}>
-                <M geo="hand" mat={m.skin} />
                 <Racket position={[0, 0.06, 0]} rotation={[Math.PI, 0, 0]} />
               </group>
             </group>
           </group>
           {/* Left arm */}
           <group ref={ref('lSh')} position={[0.2, 0.43, 0]}>
-            <M geo="upperArm" mat={m.skin} />
-            <M geo="sleeve" mat={m.shirt} position-y={0.02} />
+            <M geo={m.upperArm} />
             <group ref={ref('lEl')} position-y={-0.3}>
-              <M geo="foreArm" mat={m.skin} />
-              <M geo="hand" mat={m.skin} position-y={-0.27} />
+              <M geo={m.foreArm} />
             </group>
           </group>
         </group>

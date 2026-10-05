@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview --host"
+    "preview": "vite preview --host",
+    "optimize:player": "npx --yes @gltf-transform/cli optimize player-raw.glb public/models/player.glb --compress draco --texture-compress webp --texture-size 1024"
   },
   "dependencies": {
     "@fontsource-variable/big-shoulders-display": "^5.3.0",

@@ -86,7 +86,7 @@ export default function Floodlights({ beams = true }) {
   }, [])
 
   const faceMat = useMemo(
-    () => new THREE.MeshBasicMaterial({ color: LED_COLOR.clone().multiplyScalar(26), toneMapped: false }),
+    () => new THREE.MeshBasicMaterial({ color: LED_COLOR.clone().multiplyScalar(12), toneMapped: false }),
     [],
   )
   const cone = useMemo(beamMaterial, [])

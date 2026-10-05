@@ -68,7 +68,6 @@ a { color: inherit; }
 .reveal .line { display: block; }
 .reveal .word { display: inline-block; overflow: hidden; vertical-align: top; padding: 0.04em 0.02em 0.02em; margin: -0.04em 0; }
 .reveal .word > span { display: inline-block; will-change: transform; }
-.reveal .word + .word { margin-left: 0.2em; }
 .body { text-shadow: 0 1px 18px rgba(5, 10, 28, 0.95), 0 0 2px rgba(5, 10, 28, 0.6); }
 .body { max-width: 34ch; color: var(--ink-dim); font-size: clamp(15px, 1.15vw, 18px); margin-top: 26px; }
 .small { font-size: 13px; color: var(--ink-dim); }
@@ -282,7 +281,7 @@ a { color: inherit; }
   .tiers { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin: 22px -16px 0; padding: 0 16px 6px; gap: 12px; }
   .tier { flex: 0 0 78%; scroll-snap-align: start; padding: 20px; backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(8, 13, 32, 0.9); }
   .caption { bottom: 14vh; }
-  .caption-1 { top: 16vh; }
+  .caption-1 { top: auto; bottom: 14vh; left: 16px; right: 16px; text-align: left; }
   .scoreboard { top: 70px; left: 16px; width: 180px; transform-origin: top left; }
   .footer { flex-direction: column; gap: 4px; padding: 14px 16px; }
   .drawer-panel { padding: 64px 18px 24px; }
@@ -322,3 +321,11 @@ a { color: inherit; }
 @keyframes eq { from { height: 3px; } to { height: 12px; } }
 @media (max-width: 760px) { .sound-label { display: none; } .sound { width: 40px; height: 40px; padding: 0; justify-content: center; } }
 @media (prefers-reduced-motion: reduce) { .sound.is-on .bars i { animation: none; height: 8px; } }
+
+/* No-WebGL fallback: a still frame of the club. */
+.poster { position: fixed; inset: 0; z-index: 0; background: #050a1c url('/poster.jpg') center / cover no-repeat; }
+.sound:not(.is-on) .bars i:nth-child(1) { height: 4px; }
+.sound:not(.is-on) .bars i:nth-child(2) { height: 8px; }
+.sound:not(.is-on) .bars i:nth-child(3) { height: 5px; }
+.sound:not(.is-on) .bars i:nth-child(4) { height: 10px; }
+.sound:not(.is-on) .bars { opacity: 0.6; }

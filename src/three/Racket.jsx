@@ -32,28 +32,13 @@ function buildRacket() {
   throat.lineTo(0, HANDLE + 0.035)
   s.holes.push(throat)
 
-  // Drilled holes in a staggered grid inside the hitting area.
-  const hr = 0.0062
-  for (let row = -6; row <= 6; row++) {
-    for (let col = -5; col <= 5; col++) {
-      const x = col * 0.021 + (row % 2 ? 0.0105 : 0)
-      const y = cy + row * 0.019
-      const nx = x / (rx - 0.028)
-      const ny = (y - cy) / (ry - 0.028)
-      if (nx * nx + ny * ny > 1) continue
-      const h = new THREE.Path()
-      h.absarc(x, y, hr, 0, Math.PI * 2, true)
-      s.holes.push(h)
-    }
-  }
-
   const face = new THREE.ExtrudeGeometry(s, {
     depth: THICK - 0.008,
     bevelEnabled: true,
     bevelThickness: 0.004,
     bevelSize: 0.004,
-    bevelSegments: 2,
-    curveSegments: 18,
+    bevelSegments: 1,
+    curveSegments: 14,
   })
   face.translate(0, 0, -(THICK - 0.008) / 2)
 
@@ -64,14 +49,67 @@ function buildRacket() {
   return { face, grip, cap }
 }
 
+// The drilled holes are an alpha mask on the face instead of real cut-outs:
+// identical at viewing distance, ~50x fewer triangles.
+// ExtrudeGeometry gives the flat faces UVs equal to the shape's x/y in
+// metres, so the texture is mapped with repeat/offset to match.
+function faceTextures() {
+  const W = 256
+  const H = Math.round((W * LEN) / HEAD_W)
+  const cy = LEN - HEAD_H / 2
+  const rx = HEAD_W / 2
+  const ry = HEAD_H / 2
+  const toPx = (x, y) => [((x + rx) / HEAD_W) * W, (1 - y / LEN) * H]
+  const make = (paint) => {
+    const c = document.createElement('canvas')
+    c.width = W
+    c.height = H
+    paint(c.getContext('2d'))
+    const t = new THREE.CanvasTexture(c)
+    t.repeat.set(1 / HEAD_W, 1 / LEN)
+    t.offset.set(0.5, 0)
+    return t
+  }
+  // Colour: graphite carbon face with a slim cobalt stripe.
+  const map = make((ctx) => {
+    ctx.fillStyle = '#3a3e48'
+    ctx.fillRect(0, 0, W, H)
+    ctx.fillStyle = '#1d4fd8'
+    const [, sy] = toPx(0, cy - ry * 0.72)
+    ctx.fillRect(0, sy, W, H * 0.014)
+  })
+  map.colorSpace = THREE.SRGBColorSpace
+  // Alpha: white = solid, black = drilled hole (see-through).
+  const alphaMap = make((ctx) => {
+    ctx.fillStyle = '#fff'
+    ctx.fillRect(0, 0, W, H)
+    ctx.fillStyle = '#000'
+    for (let row = -6; row <= 6; row++) {
+      for (let col = -5; col <= 5; col++) {
+        const x = col * 0.021 + (row % 2 ? 0.0105 : 0)
+        const y = cy + row * 0.019
+        const nx = x / (rx - 0.028)
+        const ny = (y - cy) / (ry - 0.028)
+        if (nx * nx + ny * ny > 1) continue
+        const [px, py] = toPx(x, y)
+        ctx.beginPath()
+        ctx.arc(px, py, (0.0062 / HEAD_W) * W, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    }
+  })
+  return { map, alphaMap }
+}
+
 let shared = null
+let sharedMats = null
 export default function Racket(props) {
   const g = useMemo(() => (shared ??= buildRacket()), [])
   const mats = useMemo(
-    () => ({
+    () => (sharedMats ??= {
       // Group 0 = flat faces, group 1 = the frame edge.
       face: [
-        new THREE.MeshPhysicalMaterial({ color: '#0f1013', roughness: 0.35, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.15 }),
+        new THREE.MeshPhysicalMaterial({ ...faceTextures(), alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.35, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.15 }),
         new THREE.MeshStandardMaterial({ color: '#e9ecef', roughness: 0.4, metalness: 0.1 }),
       ],
       grip: new THREE.MeshStandardMaterial({ color: '#f1f1ee', roughness: 0.9 }),

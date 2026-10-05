@@ -1,4 +1,5 @@
-import * as THREE from 'three'
+// Plain maths, no three.js import: the page text and sound engine read
+// this file too, and shouldn't pull in the 3D engine to do so.
 
 // The signature rally, choreographed as real physics.
 // Between each event (hit, bounce, glass) the ball flies a true gravity arc:
@@ -37,7 +38,7 @@ const ARCS = EVENTS.slice(0, -1).map((a, i) => {
   return { a, b, v }
 })
 
-export function ballAt(t, out = new THREE.Vector3()) {
+export function ballAt(t, out) {
   if (t <= EVENTS[0].t) return out.set(...EVENTS[0].p)
   for (const arc of ARCS) {
     if (t <= arc.b.t) {

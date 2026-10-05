@@ -30,7 +30,7 @@ export default function CameraRig() {
     story.frames++
     dt = Math.min(dt, 0.05)
     const s = story.s
-    tmp.fov = sampleCamera(s, tmp.pos, tmp.look)
+    tmp.fov = sampleCamera(s, tmp.pos, tmp.look, state.size.width < state.size.height)
 
     // Intro orbit: drifts around the club, fading out as you scroll in.
     const introWeight = 1 - THREE.MathUtils.smoothstep(s, 0.0, 0.6)

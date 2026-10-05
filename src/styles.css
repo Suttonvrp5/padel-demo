@@ -1,0 +1,13 @@
+:root {
+  --night: #060b1e;
+  --ink: #f3f1ec;
+  --peach: #f2a883;
+  --ball: #d7ff3a;
+  --cobalt: #1d4fd8;
+  --display: 'Big Shoulders Display Variable', 'Arial Narrow', sans-serif;
+  --body: 'Instrument Sans Variable', system-ui, sans-serif;
+  --vh: 1vh;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--night); color: var(--ink); font-family: var(--body); }
+.webgl { position: fixed !important; inset: 0; width: 100vw; height: 100vh; }

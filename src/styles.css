@@ -11,3 +11,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--night); color: var(--ink); font-family: var(--body); }
 .webgl { position: fixed !important; inset: 0; width: 100vw; height: 100vh; }
+.story { position: relative; z-index: 2; pointer-events: none; }
+.chapter { position: relative; height: calc(var(--len) * 100 * var(--vh)); }
+.sticky { position: sticky; top: 0; height: calc(100 * var(--vh)); overflow: hidden; }
+.debug-label { position: absolute; left: 24px; bottom: 24px; font: 600 14px var(--body); opacity: .5; text-transform: uppercase; letter-spacing: .2em; }

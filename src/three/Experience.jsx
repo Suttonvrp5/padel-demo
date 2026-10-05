@@ -6,7 +6,7 @@ import Courts from './Court'
 import Surroundings from './Surroundings'
 import Floodlights from './Floodlights'
 import Lighting from './Lighting'
-import DebugCamera from './DebugCamera'
+import CameraRig from './CameraRig'
 
 export default function Experience({ quality = 'high' }) {
   return (
@@ -28,7 +28,7 @@ export default function Experience({ quality = 'high' }) {
         <Courts />
         <Floodlights beams={quality !== 'low'} />
         <Surroundings quality={quality} />
-        <DebugCamera />
+        <CameraRig />
       </Suspense>
     </Canvas>
   )

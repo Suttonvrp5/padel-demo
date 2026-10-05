@@ -64,6 +64,16 @@ export function initScroll({ reducedMotion }) {
 
 export const getLenis = () => lenis
 
+// Jump straight to a story position (used by the ?s= debug URL param).
+export function jumpToStory(target) {
+  measure()
+  const i = Math.min(CHAPTERS.length - 1, Math.floor(target))
+  const y = bounds[i] + (target - i) * (bounds[i + 1] - bounds[i])
+  if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
+  else window.scrollTo(0, y)
+  update(y)
+}
+
 export function scrollToId(id) {
   const el = document.getElementById(id)
   if (!el) return

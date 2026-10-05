@@ -126,6 +126,7 @@ export default function Rally() {
     const b = ball.current
     b.visible = visible
     b.position.copy(tmp.p)
+    story.ball = b.position
     // Squash on impact, spin in flight.
     const sq = squashAt(t)
     const k = sq.k * 0.35
@@ -162,7 +163,7 @@ export default function Rally() {
     // Glass ripple ages with rally time; in slow motion it spreads slowly.
     const age = (t - IMPACT.t) / 0.07
     rippleMat.uniforms.uAge.value = age >= 0 && age <= 1 ? age : -1
-    rippleMat.uniforms.uStrength.value = 0.9
+    rippleMat.uniforms.uStrength.value = 0.45
 
     // Camera shake right at contact (read by CameraRig).
     story.shake = age >= 0 && age < 0.35 ? (1 - age / 0.35) * 0.012 : 0

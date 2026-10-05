@@ -9,6 +9,7 @@ import Lighting from './Lighting'
 import CameraRig from './CameraRig'
 import Rally from './Rally'
 import Players from './Players'
+import Effects from './Effects'
 
 export default function Experience({ quality = 'high' }) {
   return (
@@ -21,7 +22,7 @@ export default function Experience({ quality = 'high' }) {
       onCreated={({ gl, scene, camera }) => {
         if (import.meta.env.DEV) Object.assign(window, { __scene: scene, __camera: camera })
         gl.toneMapping = THREE.ACESFilmicToneMapping
-        gl.toneMappingExposure = 1.0
+        gl.toneMappingExposure = 1.12
         scene.fog = new THREE.FogExp2('#18213f', 0.0105)
       }}
     >
@@ -34,6 +35,7 @@ export default function Experience({ quality = 'high' }) {
         <Rally />
         <Players quality={quality} />
         <CameraRig />
+        <Effects quality={quality} />
       </Suspense>
     </Canvas>
   )

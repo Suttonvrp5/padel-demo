@@ -293,3 +293,32 @@ a { color: inherit; }
   .scroll-cue i, .sb-live i { animation: none; }
   .drawer-panel, .flip, .scoreboard, .tier { transition-duration: 0.01s; }
 }
+
+/* ---------------- Loader ---------------- */
+.loader {
+  position: fixed; inset: 0; z-index: 60;
+  background: radial-gradient(120% 80% at 50% 110%, #2a2440 0%, #0b1430 45%, #050a1c 100%);
+  display: grid; place-items: center; clip-path: inset(0 0 0 0);
+}
+.loader-inner { width: min(420px, 78vw); display: flex; flex-direction: column; gap: 22px; }
+.loader-brand { font: 800 clamp(56px, 12vw, 96px)/0.85 var(--display); letter-spacing: 0.04em; text-align: center; }
+.loader-track { position: relative; height: 1px; background: var(--line); }
+.loader-fill { position: absolute; inset: 0; background: var(--ink); transform-origin: left; }
+.loader-ball { position: absolute; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--ball); box-shadow: 0 0 16px rgba(215, 255, 58, 0.8); }
+.loader-meta { display: flex; justify-content: space-between; font: 500 11px/1 var(--body); letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-dim); }
+.loader-num { font-variant-numeric: tabular-nums; color: var(--ink); }
+.hero-word .char { transform: translateY(105%); }
+.intro-fade { opacity: 0; }
+
+/* ---------------- Sound toggle ---------------- */
+.sound { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); font: 600 11px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim); transition: border-color 0.3s, color 0.3s; }
+.sound:hover, .sound.is-on { color: var(--ink); border-color: rgba(243, 241, 236, 0.4); }
+.bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
+.bars i { width: 2px; height: 3px; background: currentColor; border-radius: 1px; transition: height 0.3s; }
+.sound.is-on .bars i { animation: eq 0.9s ease-in-out infinite alternate; }
+.sound.is-on .bars i:nth-child(2) { animation-delay: -0.3s; }
+.sound.is-on .bars i:nth-child(3) { animation-delay: -0.55s; }
+.sound.is-on .bars i:nth-child(4) { animation-delay: -0.15s; }
+@keyframes eq { from { height: 3px; } to { height: 12px; } }
+@media (max-width: 760px) { .sound-label { display: none; } .sound { width: 40px; height: 40px; padding: 0; justify-content: center; } }
+@media (prefers-reduced-motion: reduce) { .sound.is-on .bars i { animation: none; height: 8px; } }

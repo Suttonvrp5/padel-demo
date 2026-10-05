@@ -4,6 +4,9 @@ import * as THREE from 'three'
 import { story } from '../lib/story'
 import { sampleCamera } from './cameraPath'
 
+// What the camera is looking at; the depth-of-field effect focuses here.
+export const focusPoint = new THREE.Vector3(0, 1, 0)
+
 // Moves the camera along the scroll path every frame.
 // Extra touches on top of the path:
 //  - a slow orbit over the club while you're still at the top of the page
@@ -24,6 +27,7 @@ export default function CameraRig() {
   )
 
   useFrame((state, dt) => {
+    story.frames++
     dt = Math.min(dt, 0.05)
     const s = story.s
     tmp.fov = sampleCamera(s, tmp.pos, tmp.look)
@@ -58,6 +62,7 @@ export default function CameraRig() {
     tmp.curLook.y = THREE.MathUtils.damp(tmp.curLook.y, tmp.look.y, lambda, dt)
     tmp.curLook.z = THREE.MathUtils.damp(tmp.curLook.z, tmp.look.z, lambda, dt)
     camera.lookAt(tmp.curLook)
+    focusPoint.copy(story.s > 2.05 && story.s < 2.9 && story.ball ? story.ball : tmp.curLook)
     if (story.shake > 0 && !story.reducedMotion) {
       const k = story.shake
       camera.rotation.x += (Math.random() - 0.5) * k

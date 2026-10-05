@@ -106,8 +106,8 @@ export default function Sections({ onBook }) {
       <section id="intro" className="chapter" style={{ '--len': len('intro') }}>
         <div className="sticky">
           <div className="hero-meta">
-            <p className="eyebrow">Padel Club · Costa Brava</p>
-            <p className="lede">Three panoramic glass courts under the Mediterranean night. Open until 1 a.m.</p>
+            <p className="eyebrow intro-fade">Padel Club · Costa Brava</p>
+            <p className="lede intro-fade">Three panoramic glass courts under the Mediterranean night. Open until 1 a.m.</p>
           </div>
           <h1 className="hero-word" aria-label="Vidrio">
             {'VIDRIO'.split('').map((c, i) => (
@@ -116,7 +116,7 @@ export default function Sections({ onBook }) {
               </span>
             ))}
           </h1>
-          <div className="scroll-cue hero-meta" aria-hidden="true">
+          <div className="scroll-cue hero-meta intro-fade" aria-hidden="true">
             <span>Scroll</span>
             <i />
           </div>

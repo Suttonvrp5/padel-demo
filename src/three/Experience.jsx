@@ -7,6 +7,7 @@ import Surroundings from './Surroundings'
 import Floodlights from './Floodlights'
 import Lighting from './Lighting'
 import CameraRig from './CameraRig'
+import Rally from './Rally'
 
 export default function Experience({ quality = 'high' }) {
   return (
@@ -28,6 +29,7 @@ export default function Experience({ quality = 'high' }) {
         <Courts />
         <Floodlights beams={quality !== 'low'} />
         <Surroundings quality={quality} />
+        <Rally />
         <CameraRig />
       </Suspense>
     </Canvas>

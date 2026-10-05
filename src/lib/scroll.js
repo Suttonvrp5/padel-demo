@@ -72,6 +72,7 @@ export function jumpToStory(target) {
   if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
   else window.scrollTo(0, y)
   update(y)
+  story.snap = true // camera jumps instead of easing there
 }
 
 export function scrollToId(id) {

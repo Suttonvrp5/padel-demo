@@ -24,6 +24,8 @@ export const story = {
   reducedMotion: false,
   quality: 'high', // 'high' | 'medium' | 'low', set by the performance monitor
   pointer: { x: 0, y: 0 }, // normalised -1..1, for subtle camera parallax
+  rallyT: -1, // seconds into the rally point (see three/rally.js)
+  shake: 0, // camera shake amount, set on the glass impact
 }
 
 // Progress (0..1) through chapter `index` given the story float.

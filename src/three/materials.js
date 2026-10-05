@@ -35,8 +35,8 @@ export const glassMaterial = () =>
           /* glsl */ `
           // Fresnel: glass reflects more at grazing angles, like a real pane.
           float fres = pow(1.0 - abs(dot(normalize(vViewPosition), normal)), 4.0);
-          float tint = mix(diffuseColor.a, 0.55, fres);
-          gl_FragColor = vec4(outgoingLight * (1.0 + fres * 1.5) + vec3(0.02, 0.05, 0.045) * tint, tint);
+          float tint = mix(diffuseColor.a, 0.4, fres);
+          gl_FragColor = vec4(outgoingLight * (1.0 + fres * 0.5) + vec3(0.02, 0.05, 0.045) * tint, tint);
           `,
         )
         .replace('#include <premultiplied_alpha_fragment>', '')

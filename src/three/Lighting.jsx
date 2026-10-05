@@ -65,7 +65,7 @@ export default function Lighting({ quality = 'high' }) {
           />
         ))}
         {/* Warm horizon glow and the clubhouse windows */}
-        <Lightformer form="ring" intensity={1.2} color="#ff9a6a" position={[-60, 4, -160]} scale={80} target={[0, 0, 0]} />
+        <Lightformer form="ring" intensity={0.5} color="#ff9a6a" position={[-60, 4, -160]} scale={80} target={[0, 0, 0]} />
         <Lightformer form="rect" intensity={0.35} color="#ffb36b" position={[0, 1.5, -16.5]} scale={[24, 2, 1]} target={[0, 1.5, 0]} />
         {/* Cool sky fill from above */}
         <Lightformer form="rect" intensity={0.35} color="#3b5bb0" position={[0, 60, 0]} scale={[120, 120, 1]} target={[0, 0, 0]} />

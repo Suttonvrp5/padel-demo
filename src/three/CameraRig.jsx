@@ -48,8 +48,9 @@ export default function CameraRig() {
 
     // Damping: higher lambda = snappier. Lenis already smooths the scroll,
     // so this mostly hides tiny jitters.
-    const lambda = tmp.first ? 1000 : 9
+    const lambda = tmp.first || story.snap ? 1000 : 9
     tmp.first = false
+    story.snap = false
     camera.position.x = THREE.MathUtils.damp(camera.position.x, tmp.pos.x, lambda, dt)
     camera.position.y = THREE.MathUtils.damp(camera.position.y, tmp.pos.y, lambda, dt)
     camera.position.z = THREE.MathUtils.damp(camera.position.z, tmp.pos.z, lambda, dt)
@@ -57,6 +58,11 @@ export default function CameraRig() {
     tmp.curLook.y = THREE.MathUtils.damp(tmp.curLook.y, tmp.look.y, lambda, dt)
     tmp.curLook.z = THREE.MathUtils.damp(tmp.curLook.z, tmp.look.z, lambda, dt)
     camera.lookAt(tmp.curLook)
+    if (story.shake > 0 && !story.reducedMotion) {
+      const k = story.shake
+      camera.rotation.x += (Math.random() - 0.5) * k
+      camera.rotation.y += (Math.random() - 0.5) * k
+    }
 
     // Portrait phones see less width, so widen the lens a little there.
     const aspect = state.size.width / state.size.height
